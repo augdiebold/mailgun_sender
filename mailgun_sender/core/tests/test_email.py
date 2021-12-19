@@ -6,7 +6,10 @@ from mailgun_sender.core.models import Email
 
 @override_settings(EMAIL_DOMAIN='test@mailgun.com', EMAIL_API_KEY='not_really_a_key')
 class EmailModelTest(TestCase):
-    def setUp(self):
+    @patch('mailgun_sender.core.models._run_send_mail_task')
+    def setUp(self, mock_signal):
+
+        self.mock_signal = mock_signal
 
         self.obj = Email(
             _from="test@mailgun.com",
@@ -99,3 +102,15 @@ class EmailModelTest(TestCase):
             }
         )
 
+    def test_run_send_mail_task_signal(self):
+        """
+        Check if signal is called for each Email saved.
+        """
+
+        self.obj.save()
+
+        # Check if signal was called
+        self.assertTrue(self.mock_signal.called)
+
+        # Check if signal was called once
+        self.assertEqual(self.mock_signal.call_count, 1)

@@ -1,6 +1,9 @@
 import requests
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .tasks import send_mails
 
 STATUS = [
     ('1', 'pending'),
@@ -47,3 +50,22 @@ class Email(models.Model):
             self.status = '2'
         else:
             self.status = '3'
+
+
+# Signals
+
+@receiver(post_save, sender=Email)
+def run_send_mail_task_handler(sender, instance, created, **kwargs):
+    _run_send_mail_task(sender, instance, created, **kwargs)
+
+
+def _run_send_mail_task(sender, instance, created, **kwargs):
+    """
+    Call send_mails task for each Email post save when created.
+
+    This function can be mocked.
+    """
+    if created:
+        print('Email object sent to tasks')
+        send_mails.delay(instance.pk)
+
