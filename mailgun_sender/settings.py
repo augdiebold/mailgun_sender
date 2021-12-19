@@ -130,3 +130,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_DOMAIN = config('EMAIL_DOMAIN')
 EMAIL_API_KEY = config('EMAIL_API_KEY')
 EMAIL_ALLOWED_SENDERS = config('EMAIL_ALLOWED_SENDERS', default='', cast=Csv())
+
+# Celery
+
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')

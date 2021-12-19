@@ -36,11 +36,14 @@ class Email(models.Model):
 
         self.json_response = response.json()
 
-        if response.status_code == 200:
-            self.status = '2'
-        else:
-            self.status = '3'
+        self._set_status(response.status_code)
 
         self.save()
 
         return response
+
+    def _set_status(self, status_code):
+        if status_code == 200:
+            self.status = '2'
+        else:
+            self.status = '3'

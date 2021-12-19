@@ -1,10 +1,10 @@
-from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from unittest.mock import patch, Mock
 
 from mailgun_sender.core.models import Email
 
 
+@override_settings(EMAIL_DOMAIN='test@mailgun.com', EMAIL_API_KEY='not_really_a_key')
 class EmailModelTest(TestCase):
     def setUp(self):
 
@@ -28,7 +28,7 @@ class EmailModelTest(TestCase):
         When the email is sent, should return a response with status_code = 200 and a standard content message
         from mailgun informing that the mail has been queued.
 
-        When succeeded Email object status should be changed to ('2', 'sent')
+        When succeeded, Email object status should be changed to ('2', 'sent')
         """
 
         expected_resp = {
@@ -55,8 +55,8 @@ class EmailModelTest(TestCase):
 
         # Check arguments mock was called
         mock_post.assert_called_once_with(
-            f"https://api.mailgun.net/v3/{settings.EMAIL_DOMAIN}/messages",
-            auth=('api', settings.EMAIL_API_KEY),
+            f"https://api.mailgun.net/v3/test@mailgun.com/messages",
+            auth=('api', 'not_really_a_key'),
             data={
                 'from': 'test@mailgun.com',
                 'to': ['test_receiver@mailgun.com'],
@@ -67,6 +67,9 @@ class EmailModelTest(TestCase):
 
     @patch('mailgun_sender.core.models.requests.post')
     def test_send_failed(self, mock_post):
+        """
+        When failed, Email object status should be changed to ('3', 'failed')
+        """
 
         self.obj.to = ''
         self.obj.save()
@@ -86,8 +89,8 @@ class EmailModelTest(TestCase):
 
         # Check arguments mock was called
         mock_post.assert_called_once_with(
-            f"https://api.mailgun.net/v3/{settings.EMAIL_DOMAIN}/messages",
-            auth=('api', settings.EMAIL_API_KEY),
+            f"https://api.mailgun.net/v3/test@mailgun.com/messages",
+            auth=('api', 'not_really_a_key'),
             data={
                 'from': 'test@mailgun.com',
                 'to': [''],
