@@ -6,14 +6,14 @@ from django.dispatch import receiver
 from .tasks import send_mails
 
 STATUS = [
-    ('1', 'pending'),
-    ('2', 'sent'),
-    ('3', 'failed'),
+    ('1', 'Pending'),
+    ('2', 'Sent'),
+    ('3', 'Failed'),
 ]
 
 
 class Email(models.Model):
-    _from = models.CharField(choices=[(email, email) for email in settings.EMAIL_ALLOWED_SENDERS], max_length=100)
+    _from = models.CharField('From', choices=[(email, email) for email in settings.EMAIL_ALLOWED_SENDERS], max_length=100)
     to = models.CharField(max_length=100)
     subject = models.CharField(max_length=100)
     text = models.TextField()
