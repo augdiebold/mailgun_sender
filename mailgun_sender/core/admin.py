@@ -18,6 +18,20 @@ class EmailModelAdmin(admin.ModelAdmin):
             return self.readonly_fields + tuple([field.name for field in obj._meta.fields])
         return self.readonly_fields
 
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        if change:
+            context.update({
+                'show_save': False,
+                'show_save_and_continue': False,
+                'show_save_and_add_another': False
+            })
+        elif add:
+            context.update({
+                'show_save_and_continue': False,
+            })
+
+        return super().render_change_form(request, context, add, change, form_url, obj)
+
     def colored_status(self, obj):
         """Change font color of displayed status"""
         colors = {
@@ -48,9 +62,9 @@ class EmailModelAdmin(admin.ModelAdmin):
         count = queryset.count()
 
         if count == 1:
-            msg = '{} email added.'
+            msg = '{} email was added successfully.'
         else:
-            msg = '{} emails added.'
+            msg = '{} emails were added successfully.'
 
         self.message_user(request, msg.format(count))
 

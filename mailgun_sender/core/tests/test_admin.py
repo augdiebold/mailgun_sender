@@ -1,4 +1,4 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from unittest.mock import patch, Mock
 
 from mailgun_sender.core.admin import EmailModelAdmin, admin, Email
@@ -32,7 +32,7 @@ class EmailModelAdminTest(TestCase):
     def test_message(self):
         """It should send a message to the user."""
         mock = self.call_action()
-        mock.assert_called_once_with(None, '1 email added.')
+        mock.assert_called_once_with(None, '1 email was added successfully.')
 
     @patch('mailgun_sender.core.models._run_send_mail_task')
     def call_action(self, mock_signal):
