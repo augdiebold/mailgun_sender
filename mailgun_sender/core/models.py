@@ -25,7 +25,7 @@ class Email(models.Model):
         return self.subject
 
     def send(self):
-        url = f"https://api.mailgun.net/v3/{settings.EMAIL_DOMAIN}/messages"
+        url = "{}/{}/messages".format(settings.EMAIL_BASE_URL, settings.EMAIL_DOMAIN)
         api_key = settings.EMAIL_API_KEY
 
         response = requests.post(

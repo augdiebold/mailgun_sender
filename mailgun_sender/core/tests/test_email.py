@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 from mailgun_sender.core.models import Email
 
 
-@override_settings(EMAIL_DOMAIN='test@mailgun.com', EMAIL_API_KEY='not_really_a_key')
+@override_settings(EMAIL_BASE_URL='https://api.mailgun.net/v3', EMAIL_DOMAIN='mailgun.com', EMAIL_API_KEY='not_really_a_key')
 class EmailModelTest(TestCase):
     @patch('mailgun_sender.core.models._run_send_mail_task')
     def setUp(self, mock_signal):
@@ -58,7 +58,7 @@ class EmailModelTest(TestCase):
 
         # Check arguments mock was called
         mock_post.assert_called_once_with(
-            f"https://api.mailgun.net/v3/test@mailgun.com/messages",
+            f"https://api.mailgun.net/v3/mailgun.com/messages",
             auth=('api', 'not_really_a_key'),
             data={
                 'from': 'test@mailgun.com',
@@ -92,7 +92,7 @@ class EmailModelTest(TestCase):
 
         # Check arguments mock was called
         mock_post.assert_called_once_with(
-            f"https://api.mailgun.net/v3/test@mailgun.com/messages",
+            f"https://api.mailgun.net/v3/mailgun.com/messages",
             auth=('api', 'not_really_a_key'),
             data={
                 'from': 'test@mailgun.com',

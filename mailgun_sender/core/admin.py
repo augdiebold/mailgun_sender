@@ -35,8 +35,8 @@ class EmailModelAdmin(admin.ModelAdmin):
     def colored_status(self, obj):
         """Change font color of displayed status"""
         colors = {
-            '2': 'green',
             '1': 'orange',
+            '2': 'green',
             '3': 'red',
         }
 

@@ -1,0 +1,74 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:14.0-alpine
+    env_file:
+      - .env-docker
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data/
+    networks:
+      - mailgun_sender
+
+  web:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_volume:/app/staticfiles
+    env_file:
+      - .env-docker
+    depends_on:
+      - db
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --no-input --clear &&
+             gunicorn mailgun_sender.wsgi:application --bind 0.0.0.0:8000"
+    networks:
+      - mailgun_sender
+
+  rabbitmq:
+    image: rabbitmq:alpine
+    restart: always
+    ports:
+      - "5672:5672"
+    networks:
+      - mailgun_sender
+
+  celery:
+    build:
+      context: .
+    command: celery -A mailgun_sender worker -l info
+    volumes:
+      - .:/app
+    env_file:
+      - .env-docker
+    depends_on:
+      - db
+      - rabbitmq
+      - web
+    networks:
+      - mailgun_sender
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/app/staticfiles
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    networks:
+      - mailgun_sender
+
+
+networks:
+  mailgun_sender:
+    driver: bridge
+
+volumes:
+  db:
+  static_volume:
