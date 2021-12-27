@@ -1,7 +1,7 @@
-import httpretty
+from unittest.mock import patch, Mock
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
-from unittest.mock import patch, Mock
 
 from mailgun_sender.core.models import Email
 
