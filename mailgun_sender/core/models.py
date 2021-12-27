@@ -1,9 +1,13 @@
+from http import HTTPStatus
+
 import requests
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
 from .tasks import send_mails
+from .validators import validate_to
 
 STATUS = [
     ('1', 'Pending'),
@@ -14,7 +18,7 @@ STATUS = [
 
 class Email(models.Model):
     _from = models.CharField('From', choices=[(email, email) for email in settings.EMAIL_ALLOWED_SENDERS], max_length=100)
-    to = models.CharField(max_length=100)
+    to = models.CharField(max_length=100, validators=[validate_to])
     subject = models.CharField(max_length=100)
     text = models.TextField()
     status = models.CharField(choices=STATUS, max_length=1, default='1')
@@ -24,6 +28,9 @@ class Email(models.Model):
     def __str__(self):
         return self.subject
 
+    def get_to_from_list(self):
+        return self.to.replace(' ', '').split(',')
+
     def send(self):
         url = "{}/{}/messages".format(settings.EMAIL_BASE_URL, settings.EMAIL_DOMAIN)
         api_key = settings.EMAIL_API_KEY
@@ -32,7 +39,7 @@ class Email(models.Model):
             url,
             auth=("api", api_key),
             data={"from": self._from,
-                  "to": self.to.replace(' ', '').split(','),
+                  "to": self.get_to_from_list(),
                   "subject": self.subject,
                   "text": self.text},
         )
@@ -46,9 +53,11 @@ class Email(models.Model):
         return response
 
     def _set_status(self, status_code):
-        if status_code == 200:
+        if status_code == HTTPStatus.OK:
+            # Status Sent
             self.status = '2'
         else:
+            # Status Failed
             self.status = '3'
 
 

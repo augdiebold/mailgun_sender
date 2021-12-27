@@ -1,3 +1,5 @@
+import httpretty
+from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from unittest.mock import patch, Mock
 
@@ -24,6 +26,15 @@ class EmailModelTest(TestCase):
         """ Email object should be created """
 
         self.assertTrue(Email.objects.exists())
+
+    def test_invalid_email(self):
+        """ To must only accept valid emails. Raises ValidationError if invalid."""
+        self.obj.to = "not_valid_emails"
+
+        with self.assertRaises(ValidationError) as ve:
+            self.obj.full_clean()
+
+        self.assertIn('Email adresses must be valid.', str(ve.exception))
 
     @patch('mailgun_sender.core.models.requests.post')
     def test_send_success(self, mock_post):

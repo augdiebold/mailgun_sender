@@ -17,6 +17,7 @@ services:
       context: .
     ports:
       - "8000:8000"
+    restart: always
     volumes:
       - static_volume:/app/staticfiles
     env_file:
