@@ -16,7 +16,7 @@ git clone https://github.com/augdiebold/mailgun_sender.git
 ```
 docker-compose up --build
 ```
-The server will run at port 8000: http://localhost:8000.
+The server will run at: http://localhost.
 
 ## Environment Setup
 1. Create an environment file named `.env-docker`.  
